@@ -1,0 +1,34 @@
+12 hour  | 360 deg
+1  hour  | ? deg
+
+1 * 360 / 12 = 30 deg -> 1hour = 30deg
+
+1 hour | 30 deg
+5 hour | ? deg
+
+5 * 30 = 150 deg
+
+1 hour = 60 minute
+1 minute = 60 second
+
+60 minute || 60 second | 360 deg
+1 minute  || 1 second  | ? deg
+
+1 * 360  / 60 = 6
+
+1 second  | 6 deg
+15 second | ? deg
+
+15 * 6 = 90 deg
+
+
+
+
+
+
+--background: #262626;
+--shadow-clock: 7px 7px 14px #202020,
+    -5px -5px 14px #2c2c2c;
+--yellow: #ffff00;
+--black:#000;
+--gray:#939393;
