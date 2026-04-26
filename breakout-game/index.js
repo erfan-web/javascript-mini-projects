@@ -1,86 +1,76 @@
-let canvas = document.getElementById("game"),
-  ctx = canvas.getContext("2d"),
-  ballRadius = 9,
-  x = canvas.width / (Math.floor(Math.random() * Math.random() * 10) + 3),
-  y = canvas.height - 40,
+const canvas = document.getElementById("game"),
+  ctx = canvas.getContext("2d");
+
+// Ball
+let ballRadius = 9,
+  ballX = canvas.width / (Math.floor(Math.random() * Math.random() * 10) + 3),
+  ballY = canvas.height - 40,
   dx = 2,
   dy = -2;
 
-let paddleHeight = 12,
+// Paddle
+const paddleHeight = 12,
   paddleWidth = 72;
+let paddleX = (canvas.width - paddleWidth) / 2,
+  paddleY = canvas.height - paddleHeight;
 
-// Paddle start position
-let paddleX = (canvas.width - paddleWidth) / 2;
 // Bricks
-let rowCount = 5,
+const rowCount = 5,
   columnCount = 9,
-  brickWidth = 54,
-  brickHeight = 18,
-  brickPadding = 12,
-  topOffset = 40,
-  leftOffset = 33,
-  score = 0;
+  bricksWidth = 54,
+  bricksHeight = 18,
+  bricksGap = 12,
+  bricksTop = 40,
+  bricksLeft = 33;
 
-// Bricks array
 let bricks = [];
+
 for (let c = 0; c < columnCount; c++) {
   bricks[c] = [];
   for (let r = 0; r < rowCount; r++) {
-    // Set position of bricks
     bricks[c][r] = { x: 0, y: 0, status: 1 };
   }
 }
 
-// Mouse moving eventListener and function
-document.addEventListener("mousemove", mouseMoveHandler);
+// score
+let score = 0,
+  scoreFont = "bold 16px sans-serif",
+  scoreX = 8,
+  scoreY = 24;
 
-// Move paddle with mouse
-function mouseMoveHandler(e) {
-  //e.g. e.client=0,canvas.offsetLeft=506
-  //e.g. 0 - 506 = -506 -> so paddle don't move
-  //e.g. 507-506 == 1 -> so paddle move
-  //e.g. canvasWidth=800,relativeX=900 - > so paddle don't move
-  var relativeX = e.clientX - canvas.offsetLeft;
-  if (relativeX > 0 && relativeX < canvas.width) {
-    paddleX = relativeX - paddleWidth / 2;
-  }
+/* ----------- functions ----------- */
+function drawScore() {
+  ctx.font = scoreFont;
+  ctx.fillStyle = "#333";
+  ctx.fillText(`Score : ${score}`, scoreX, scoreY);
 }
 
-// Draw paddle
 function drawPaddle() {
   ctx.beginPath();
-  ctx.roundRect(
-    paddleX,
-    canvas.height - paddleHeight,
-    paddleWidth,
-    paddleHeight,
-    30,
-  );
+  ctx.roundRect(paddleX, paddleY, paddleWidth, paddleHeight, 30);
   ctx.fillStyle = "#333";
   ctx.fill();
   ctx.closePath();
 }
 
-// Draw ball
 function drawBall() {
   ctx.beginPath();
-  ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+  ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
   ctx.fillStyle = "#333";
   ctx.fill();
   ctx.closePath();
 }
 
-// Draw Bricks
 function drawBricks() {
   for (let c = 0; c < columnCount; c++) {
     for (let r = 0; r < rowCount; r++) {
-      if (bricks[c][r].status === 1) {
-        let brickX = c * (brickWidth + brickPadding) + leftOffset;
-        let brickY = r * (brickHeight + brickPadding) + topOffset;
-        bricks[c][r].x = brickX;
-        bricks[c][r].y = brickY;
+      let b = bricks[c][r];
+      if (b.status === 1) {
+        b.x = c * (bricksWidth + bricksGap) + bricksLeft;
+        b.y = r * (bricksHeight + bricksGap) + bricksTop;
+
         ctx.beginPath();
-        ctx.roundRect(brickX, brickY, brickWidth, brickHeight, 30);
+        ctx.roundRect(b.x, b.y, bricksWidth, bricksHeight, 30);
         ctx.fillStyle = "#333";
         ctx.fill();
         ctx.closePath();
@@ -89,76 +79,73 @@ function drawBricks() {
   }
 }
 
-// Track score
-function trackScore() {
-  ctx.font = "bold 16px sans-serif";
-  ctx.fillStyle = "#333";
-  ctx.fillText("Score : " + score, 8, 24);
+// Handle Paddle
+document.addEventListener("mousemove", mouseMoveHandler);
+
+function mouseMoveHandler(e) {
+  let relativeX = e.clientX - canvas.offsetLeft;
+  // console.log("clientX",e.clientX)
+  // console.log("relativeX",relativeX)
+  // console.log("width",canvas.width)
+  if (relativeX > 0 && relativeX < canvas.width) {
+    paddleX = relativeX - paddleWidth / 2;
+    console.log("paddle",paddleX)
+  }
 }
 
-// Check ball hit bricks
 function hitDetection() {
   for (let c = 0; c < columnCount; c++) {
     for (let r = 0; r < rowCount; r++) {
       let b = bricks[c][r];
       if (b.status === 1) {
         if (
-          x > b.x &&
-          x < b.x + brickWidth &&
-          y > b.y &&
-          y < b.y + brickHeight
+          ballX > b.x &&
+          ballX < b.x + bricksWidth &&
+          ballY > b.y &&
+          ballY < b.y + bricksHeight
         ) {
-          dy = -dy;
           b.status = 0;
           score++;
-          // Check win
-          if (score === rowCount * columnCount) {
-            alert("You Win!");
-            document.location.reload();
-          }
+          dy = -dy;
+
+          checkWin();
         }
       }
     }
   }
 }
 
-// Main function
-function init() {
+function GameInit() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  trackScore();
-  drawBricks();
-  drawBall();
+  drawScore();
   drawPaddle();
+  drawBall();
+  drawBricks();
   hitDetection();
 
-  // Detect left and right walls
-
-  if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
+  if (ballX + dx < ballRadius || ballX + dx > canvas.width - ballRadius) {
     dx = -dx;
   }
-
-  //   Detect top wall
-  if (y + dy < ballRadius) {
+  if (ballY + dy < ballRadius) {
     dy = -dy;
-  } else if (y + dy > canvas.height - ballRadius) {
-    // Detect paddle hits
-    if (x > paddleX && x < paddleX + paddleWidth) {
+  } else if (ballY + dy > canvas.height - ballRadius) {
+    if (ballX + dx > paddleX && ballX + dx < paddleX + paddleWidth) {
       dy = -dy;
     } else {
-      // If ball don't hit paddle
+      location.reload();
       alert("Game Over!");
-      document.location.reload();
     }
   }
+  //  Move ball
+  ballX += dx;
+  ballY += dy;
+}
+setInterval(GameInit, 10);
 
-  //   Bottom wall
-  if (y + dy > canvas.height - ballRadius || y + dy < ballRadius) {
-    dy = -dy;
+function checkWin() {
+  if (score === rowCount * columnCount) {
+    alert("You Win!");
+    location.reload();
   }
-
-  //   Move Ball
-  x += dx;
-  y += dy;
 }
 
-setInterval(init, 10);

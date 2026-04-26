@@ -1,0 +1,128 @@
+Math.random() make a random number from 0 to 1
+e.g. 0.5845567... , 0.8764543245...., 0.323334...
+
+وقتی دو تا عدد رندوم بین صفر تا یک را در هم ضرب کنیم آنگاه
+اون عدد بدست اومده نزدیک تر به صفر هست یعنی کوچیک تر میشه
+Math.random() * Math.random() = عدد بدست آمده نزدیک تر به صفر هست
+
+حالا میگیم که تا یه رقم اعشار برو جلو
+Math.random() * Math.random() * 10
+
+0.4589... * 10 = 4.589...
+
+گاهی ممکنه که خروجی به ما باز عدد صفر رو برگردونه به هر حال 
+با وجود ضرب های بالا ما به صفر احتیاج نداریم به همین خاطر 
+در نهایت به علاوه 3 میکنیم
+Math.random() * Math.random() * 10 + 3
+
+و حالا برای اینکه فقط عددمون بدون اعشار باشه اینکارو انجام میدیم
+Math.floor(Math.random() * Math.random() * 10) + 3
+
+
+
+why Y is = canvas.height - 40;
+
+1 .
+2 .
+3 .
+4 .
+5
+6
+.
+450
+
+پس در کانوس محور وای نقطه صفرش در بالا سمت چپ هست
+یعنی هرچی از بالا به پایین میاییم عدد ها صعودی میشوند.
+به همین خاطر چهل تا ازش کم میکنیم تا
+توپمون یه خورده بالا تر از زمین و پدل شروع شود
+
+
+dx و dy → سرعت توپ در جهت x و y.
+
+
+
+
+
+
+
+let canvas = document.getElementById("game"),
+  ctx = canvas.getContext("2d"),
+  ballRadius = 9,
+  x = canvas.width / (Math.floor(Math.random() * Math.random() * 10) + 3),
+  y = canvas.height - 40,
+  dx = 2,
+  dy = -2;
+
+let paddleHeight = 12,
+  paddleWidth = 72;
+
+// Paddle start position
+let paddleX = canvas.width - paddleWidth / 2;
+
+// Bricks
+let rowCount = 5,
+  columnCount = 9,
+  brickWidth = 54, // 9 * 54 = 486
+  brickHeight = 18,
+  brickPadding = 12, // 8 * 12 = 96     // 486 + 96 + 66 = 648px  canvas.width=650px
+  topOffset = 40, // 5 * 18 + 4 * 12 + 40 = 178
+  leftOffset = 33, // 2 * 33 = 66
+  score = 0;
+
+// Bricks array
+let bricks = [];
+for (let c = 0; c < columnCount; c++) {
+  bricks[c] = [];
+  for (let r = 0; r < rowCount; r++) {
+    bricks[c][r] = { x: 0, y: 0, status: 1 };
+  }
+}
+// when c is 0-> bricks[0]=[]-> [[]]->
+//  r is 0 to 4 -> bricks[0][0] = {..} , bricks[0][1] = {..} , ... , bricks[0][4] = {..} -> [ [{},{},{},{},{}] ]->
+// in ui->
+// | .
+// | .
+// | .
+// | .
+// | .
+
+// when c is 1-> bricks[1]=[]-> [[],[]]->
+// again r is 0 to 4 -> bricks[1][0] = {..} , bricks[1][1] = {..} , ... , bricks[1][4] = {..} -> [ [{},{},{},{},{}] , [{},{},{},{},{}] ]->
+// in ui->
+// | . .
+// | . .
+// | . .
+// | . .
+// | . .
+
+// ...... ,
+
+// when c is 8-> bricks[8]=[]-> [[],[],[],[],[],[],[],[],[]]->
+// again r is 0 to 4 -> bricks[8][0] = {..} , bricks[8][1] = {..} , ... , bricks[8][4] = {..} ->
+// [ [{},{},{},{},{}] , [{},{},{},{},{}] , [{},{},{},{},{}] , [{},{},{},{},{}] , [{},{},{},{},{}] ,
+//  [{},{},{},{},{}] , [{},{},{},{},{}] , [{},{},{},{},{}] , [{},{},{},{},{}] ]->
+// in ui->
+// | . . . . . . . . .
+// | . . . . . . . . .
+// | . . . . . . . . .
+// | . . . . . . . . .
+// | . . . . . . . . .
+
+// Mouse moving eventListener and function
+document.addEventListener("mousemove", mouseMoveHandler);
+
+// Move paddle with mouse
+function mouseMoveHandler(e) {
+  var relativeX = e.clientX - canvas.offsetLeft;
+  // conditional is -> relativeX < canvas.width -> paddle can move
+  // conditional is -> relativeX > 0 -> paddle can move
+  // e.g. e.clientX = 0, canvas.offsetLeft = 506, canvas.width = 650
+  // e.g. 0 - 506 = -506 -> -506 > 0 ? paddle can move : paddle can't move
+  // e.g. 507 - 506 = 1 -> 1 > 0 ? paddle can move : paddle can't move
+  // e.g. e.clientX = 1206, canvas.width = 650, canvas.offsetLeft = 506  -> 1206 - 506 = 700 is relativeX-> 700 < 650 ? paddle can move : paddle can't move
+  // e.g. e.clientX = 1155, canvas.width = 650, canvas.offsetLeft = 506  -> 1155 - 506 = 649 is relativeX-> 649 < 650 ? paddle can move : paddle can't move
+  if (relativeX >= 0 && relativeX < canvas.width) {
+    paddleX = relativeX - paddleWidth / 2; // 649 - 72 / 2 = 649 - 36 = 613
+  }
+}
+

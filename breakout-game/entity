@@ -1,0 +1,43 @@
+--background: efefef;
+--background-game: #ccc;
+--primary: #333;
+
+canvas.width = 650px;
+canvas.height = 450px;
+canvas context = 2d;
+
+canvas.background = #ccc;
+canvas.border-size = 2px;
+canvas.border-type = solid;
+canvas.border-color = #333;
+
+
+paddle.height = 12px;
+paddle.width = 72px;
+paddle.x = ?; center of canvas
+paddle.y = ?; bottom of canvas
+
+
+bricks.rowcount = 5;
+bricks.columncount = 9;
+
+brick.width = 54;
+brick.height = 18;
+brick.gap = 12;
+brck.top = 40;
+brick.left = 33;
+brick.x = ?;
+brick.y = ?;
+brick.status = 1; وضعیت نمایش اجر
+
+ball.x = canvas.width / (Math.floor(Math.random() * Math.random() * 10) + 3);
+ball.y = canvas.height - 40;
+ball.stepX = 2; سرعت و جهت در راستای ایکس
+ball.stepY = 2; سرعت و جهت در راستای وای
+
+
+score = 0;
+score.text = Score : 0;
+score.font = bold 16px sans-serif;
+score.x = 8;
+score.y = 24;
