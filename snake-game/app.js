@@ -1,30 +1,23 @@
-const playBoard = document.querySelector(".play-board");
-const scoreEl = document.querySelector(".score");
-const recordEl = document.querySelector(".high-score");
-const controls = document.querySelectorAll(".controls i");
-let boardSize = 30;
-let gameInterval;
+const playBoard = document.querySelector(".play__board"),
+  boardSize = 30;
+const scoreEl = document.querySelector(".score"),
+  recordEl = document.querySelector(".record");
 
-let foodX, foodY;
+let snakeBody = [],
+  gameInterval,
+  snakeX = 5,
+  snakeY = 10,
+  stepX = 0,
+  stepY = 0,
+  foodX,
+  foodY,
+  score = 0,
+  record = localStorage.getItem("record") || score;
 
-let snakeX = 5,
-  snakeY = 10;
-
-let stepX = 0,
-  stepY = 0;
-
-let score = 0;
-let record = localStorage.getItem("record") || 0;
-
-scoreEl.innerText = `Score: ${score}`;
-recordEl.innerText = `High Score: ${record}`;
-
-let snakeBody = [];
-function changeFoodPosition() {
+function changeFoodPosition () {
   foodX = Math.floor(Math.random() * boardSize) + 1;
   foodY = Math.floor(Math.random() * boardSize) + 1;
 }
-
 function changeDirection(e) {
   if (e.key === "ArrowUp" && stepY !== 1) {
     stepX = 0;
@@ -40,63 +33,55 @@ function changeDirection(e) {
     stepY = 0;
   }
 }
-
-controls.forEach((key) => {
-  key.addEventListener("click", () =>
-    changeDirection({ key: key.dataset.key }),
-  );
-});
-
-const GameInit = () => {
+function handleGameOver() {
+  clearInterval(gameInterval);
+  if (!record || score > record) localStorage.setItem("record", score);
+  location.reload();
+  alert("Game Over!");
+}
+function GameInit() {
   let htmlMarkUp = `
-    <div
-    class="food"
-    style="grid-area:${foodY} / ${foodX}"
-    ></div>
-  `;
+        <div 
+        class="food" 
+        style="grid-area: ${foodY} / ${foodX}"
+        ></div>
+    `;
+
   snakeX += stepX;
   snakeY += stepY;
 
-  // اگر مار به غذا رسید
   if (snakeX === foodX && snakeY === foodY) {
-    changeFoodPosition();
-    snakeBody.push([foodY, foodX]);
+    changeFoodPosition ();
+    snakeBody.push([foodX, foodY]);
     score++;
-    scoreEl.innerText = `Score: ${score}`;
-    record = score > record ? score : record;
-    localStorage.setItem("record", record);
   }
 
   for (let i = snakeBody.length - 1; i > 0; i--) {
     snakeBody[i] = snakeBody[i - 1];
   }
 
-  snakeBody[0] = [snakeY, snakeX];
+  snakeBody[0] = [snakeX, snakeY];
 
   if (snakeX <= 0 || snakeX > boardSize || snakeY <= 0 || snakeY > boardSize) {
-    gameOverHandle();
+    handleGameOver();
   }
 
-  for (let i = 0; i < snakeBody.length; i++) {
-    if (i !== 0 && snakeBody[i][0] == snakeY && snakeBody[i][1] == snakeX) {
-      gameOverHandle();
+  snakeBody.forEach((item, i) => {
+    if (i > 1 && item[1] == snakeY && item[0] == snakeX) {
+      handleGameOver();
     }
     htmlMarkUp += `
-    <div
-    class="snake"
-    style="grid-area:${snakeBody[i][0]} / ${snakeBody[i][1]}"
-    ></div>
-  `;
-  }
+        <div 
+        class="snake" 
+        style="grid-area: ${item[1]} / ${item[0]}"
+        ></div>
+    `;
+  });
+
   playBoard.innerHTML = htmlMarkUp;
-};
+  scoreEl.innerText = `Score: ${score}`;
+  recordEl.innerText = `Record: ${record}`;
+}
 changeFoodPosition();
 gameInterval = setInterval(GameInit, 125);
 document.addEventListener("keydown", changeDirection);
-
-function gameOverHandle() {
-  clearInterval(gameInterval);
-  recordEl.innerText = `high Score: ${record}`;
-  alert("Game Over");
-  location.reload();
-}
